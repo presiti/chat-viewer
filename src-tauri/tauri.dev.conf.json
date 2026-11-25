@@ -1,0 +1,14 @@
+{
+  "productName": "Chat Viewer Dev",
+  "identifier": "co.duo.chat-viewer.dev",
+  "app": {
+    "windows": [
+      { "title": "Chat Viewer Dev", "width": 1200, "height": 800, "minWidth": 360, "minHeight": 480, "titleBarStyle": "Overlay", "hiddenTitle": true }
+    ]
+  },
+  "bundle": {
+    "targets": ["app", "dmg"],
+    "createUpdaterArtifacts": false,
+    "icon": ["icons-dev/32x32.png", "icons-dev/128x128.png", "icons-dev/128x128@2x.png", "icons-dev/icon.icns", "icons-dev/icon.ico"]
+  }
+}

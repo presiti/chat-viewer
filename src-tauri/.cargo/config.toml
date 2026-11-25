@@ -1,0 +1,4 @@
+# The default SDK on this machine (MacOSX27.0 beta) is not understood by the
+# installed linker; pin the stable one. Harmless on machines without it.
+[env]
+SDKROOT = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"

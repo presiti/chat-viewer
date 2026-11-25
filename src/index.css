@@ -1,0 +1,196 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "SF Mono", Menlo, Consolas, monospace;
+}
+
+:root {
+  --bg: #ffffff;
+  --bg-muted: #f4f5f9;
+  --bg-sidebar: #1e2233;
+  --fg: #181b25;
+  --fg-muted: #5b6272;
+  --fg-sidebar: #d0d5e4;
+  --border: #e3e6ee;
+  --accent: #4f6df5;
+  --accent-fg: #ffffff;
+  --mention: #fdf0c4;
+}
+
+/* Dark palette: applied by the OS preference unless the app forces a mode (data-mode on <html>). */
+:root[data-mode="dark"] {
+  --bg: #222633;
+  --bg-muted: #2b3040;
+  --bg-sidebar: #0b0d13;
+  --fg: #eceef4;
+  --fg-muted: #a3a9ba;
+  --fg-sidebar: #b9bfd0;
+  --border: #3a4058;
+  --accent: #8aa4ff;
+  --accent-fg: #0c1020;
+  --mention: #4d4116;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-mode="light"]) {
+    --bg: #222633;
+    --bg-muted: #2b3040;
+    --bg-sidebar: #0b0d13;
+    --fg: #eceef4;
+    --fg-muted: #a3a9ba;
+    --fg-sidebar: #b9bfd0;
+    --border: #3a4058;
+    --accent: #8aa4ff;
+    --accent-fg: #0c1020;
+    --mention: #4d4116;
+  }
+}
+
+/* Everything interactive follows the accent: hovers are the accent mixed into the surface. */
+:root {
+  --hover: color-mix(in srgb, var(--accent) 9%, var(--bg-muted));
+  --side-hover: color-mix(in srgb, var(--accent) 16%, transparent);
+  --side-hover-strong: color-mix(in srgb, var(--accent) 26%, transparent);
+  --tex-image-side: none; --tex-image-main: none; --tex-opacity-side: 0; --tex-opacity-main: 0;
+  --border-strong: var(--border);
+  --ink-sidebar: #ffffff;
+}
+/* Effects sit between a region's background and its content (never over text); sidebar and chat have their own strength. */
+aside, [data-main-area] { isolation: isolate; }
+/* The chat column paints its own surface so the grain layer blends with it (an isolated group blends with nothing outside it). */
+[data-main-area] { background: var(--bg); }
+aside::before, [data-main-area]::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+aside::before { background-image: var(--tex-image-side); background-size: var(--tex-size-side); mix-blend-mode: var(--tex-blend-side); -webkit-mask-image: var(--tex-mask-side); mask-image: var(--tex-mask-side); opacity: var(--tex-opacity-side); }
+[data-main-area]::before { background-image: var(--tex-image-main); background-size: var(--tex-size-main); mix-blend-mode: var(--tex-blend-main); -webkit-mask-image: var(--tex-mask-main); mask-image: var(--tex-mask-main); opacity: var(--tex-opacity-main); }
+
+html, body, #root {
+  height: 100%;
+  height: 100dvh; /* the dynamic viewport: shrinks with the soft keyboard / mobile browser bars */
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+* { box-sizing: border-box; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--fg-muted) 55%, transparent); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--fg-muted) 80%, transparent); background-clip: padding-box; }
+::-webkit-scrollbar-track { background: transparent; }
+/* On the sidebar the thumb follows the sidebar ink (light or dark) and the theme accent so it never melts into the surface. */
+aside ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--ink-sidebar) 40%, transparent); background-clip: padding-box; }
+aside ::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--accent) 70%, var(--ink-sidebar)); background-clip: padding-box; }
+
+.titlebar-drag { -webkit-app-region: drag; }
+.titlebar-nodrag { -webkit-app-region: no-drag; }
+
+.msg-body a { color: var(--accent); text-decoration: none; }
+.msg-body a:hover { text-decoration: underline; }
+.msg-body code { font-family: var(--font-mono); font-size: 12.5px; background: var(--bg-muted); padding: 1px 4px; border-radius: 4px; }
+.msg-body pre { font-family: var(--font-mono); font-size: 12.5px; background: var(--bg-muted); padding: 8px 10px; border-radius: 6px; overflow-x: auto; margin: 4px 0; }
+.msg-body .mention { background: var(--mention); border-radius: 3px; padding: 0 2px; font-weight: 600; }
+
+/* --- message markup --- */
+.msg-body strong { font-weight: 700; }
+.msg-body em { font-style: italic; }
+.msg-body s { opacity: .7; }
+.msg-body blockquote { margin: 4px 0; padding: 2px 0 2px 10px; border-left: 3px solid color-mix(in srgb, var(--accent) 55%, transparent); color: var(--fg-muted); }
+.msg-body ul { margin: 2px 0; padding-left: 20px; list-style: disc; }
+.msg-body ul li { margin: 1px 0; }
+.msg-body .emoji { font-size: 1.15em; line-height: 1; vertical-align: -0.1em; }
+.msg-body mark { background: color-mix(in srgb, #facc15 45%, transparent); color: inherit; border-radius: 2px; padding: 0 1px; }
+/* Search-result preview: clamped to 3 lines, so block elements must not add their own vertical space. */
+.search-preview pre, .search-preview pre.code-block, .search-preview blockquote, .search-preview ul { margin: 0; }
+.search-preview pre, .search-preview pre.code-block { padding: 2px 6px; border: 0; white-space: pre-wrap; overflow: hidden; }
+.search-preview pre.code-block .copy-btn, .search-preview pre.code-block::before { display: none; }
+.msg-body pre.code-block { position: relative; margin: 6px 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-muted); font-size: 12.5px; line-height: 1.5; overflow-x: auto; }
+.msg-body pre.code-block[data-lang]:not([data-lang=""])::before { content: attr(data-lang); position: absolute; top: 6px; right: 56px; font-size: 10px; color: var(--fg-muted); text-transform: uppercase; }
+.msg-body pre.code-block .copy-btn { position: absolute; top: 6px; right: 8px; font-size: 11px; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg); color: var(--fg-muted); opacity: 0; transition: opacity .15s; cursor: pointer; }
+.msg-body pre.code-block:hover .copy-btn { opacity: 1; }
+
+/* highlight.js (compact theme tuned for both modes) */
+.hljs-comment, .hljs-quote { color: #8b919c; font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-section { color: #c678dd; }
+.hljs-string, .hljs-attr, .hljs-template-tag, .hljs-regexp { color: #98c379; }
+.hljs-number, .hljs-symbol, .hljs-bullet { color: #d19a66; }
+.hljs-title, .hljs-name, .hljs-selector-id, .hljs-selector-class { color: #61afef; }
+.hljs-built_in, .hljs-type, .hljs-class .hljs-title { color: #e5c07b; }
+.hljs-variable, .hljs-template-variable, .hljs-attribute { color: #e06c75; }
+.hljs-meta { color: #56b6c2; }
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: bold; }
+:root[data-mode="light"] .hljs-keyword, :root[data-mode="light"] .hljs-selector-tag, :root[data-mode="light"] .hljs-literal, :root[data-mode="light"] .hljs-section { color: #a626a4; }
+:root[data-mode="light"] .hljs-string, :root[data-mode="light"] .hljs-attr, :root[data-mode="light"] .hljs-template-tag, :root[data-mode="light"] .hljs-regexp { color: #50a14f; }
+:root[data-mode="light"] .hljs-number, :root[data-mode="light"] .hljs-symbol, :root[data-mode="light"] .hljs-bullet { color: #986801; }
+:root[data-mode="light"] .hljs-title, :root[data-mode="light"] .hljs-name, :root[data-mode="light"] .hljs-selector-id, :root[data-mode="light"] .hljs-selector-class { color: #4078f2; }
+:root[data-mode="light"] .hljs-built_in, :root[data-mode="light"] .hljs-type, :root[data-mode="light"] .hljs-class .hljs-title { color: #c18401; }
+:root[data-mode="light"] .hljs-variable, :root[data-mode="light"] .hljs-template-variable, :root[data-mode="light"] .hljs-attribute { color: #e45649; }
+:root[data-mode="light"] .hljs-meta { color: #0184bc; }
+
+/* flash highlight for jump-to-message */
+@keyframes msg-flash { 0% { background: color-mix(in srgb, var(--accent) 25%, transparent); } 100% { background: transparent; } }
+.msg-flash { animation: msg-flash 2s ease-out; }
+
+/* --- single-column / touch --- */
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+/* A finger is the primary pointer: inputs at 16px (iOS zooms the page on focus below that) and larger tap targets. */
+@media (pointer: coarse) {
+  input, textarea, select, .composer-editor { font-size: 16px !important; }
+  button, [role="button"] { min-height: 36px; }
+  .copy-btn { opacity: 1; }
+}
+
+/* --- motion: subtle, short; every rule below is neutralised by prefers-reduced-motion at the end of this block --- */
+:root { --dur-fast: .15s; --dur: .22s; --ease-out: cubic-bezier(.2, .8, .2, 1); }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes view-enter { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes pop-in { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes slide-in-right { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.anim-fade { animation: fade-in var(--dur) var(--ease-out) both; }
+.anim-view { animation: view-enter var(--dur) var(--ease-out) both; }
+.anim-pop { animation: pop-in var(--dur-fast) var(--ease-out) both; }
+.anim-slide-r { animation: slide-in-right var(--dur) var(--ease-out) both; }
+.anim-toast { animation: toast-in var(--dur) var(--ease-out) both; }
+.skeleton { background: linear-gradient(90deg, var(--bg-muted) 25%, color-mix(in srgb, var(--fg-muted) 18%, var(--bg-muted)) 50%, var(--bg-muted) 75%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
+/* Height transition without measuring: rows stay mounted, the grid track animates 0fr <-> 1fr. */
+.collapsible { display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows var(--dur) var(--ease-out), opacity var(--dur-fast) linear; }
+.collapsible[data-open="false"] { grid-template-rows: 0fr; opacity: 0; pointer-events: none; }
+.collapsible > .collapsible-inner { min-height: 0; overflow: hidden; }
+@media (prefers-reduced-motion: reduce) {
+  .anim-fade, .anim-view, .anim-pop, .anim-slide-r, .anim-toast { animation: none; }
+  .skeleton { animation: none; }
+  .collapsible { transition: none; }
+  .animate-spin { animation-duration: 3s; }
+  *, *::before, *::after { transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+
+/* popovers */
+.popover { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.18); }
+
+/* --- composer (Tiptap / ProseMirror) --- */
+.composer-editor { outline: none; min-height: 24px; font-size: 14px; line-height: 1.5; }
+.composer-editor p { margin: 0; }
+.composer-editor p.is-editor-empty:first-child::before { content: attr(data-placeholder); color: var(--fg-muted); pointer-events: none; float: left; height: 0; }
+.composer-editor strong { font-weight: 700; }
+.composer-editor em { font-style: italic; }
+.composer-editor s { opacity: .7; }
+.composer-editor code { font-family: var(--font-mono); font-size: 12.5px; background: var(--bg-muted); padding: 1px 4px; border-radius: 4px; }
+.composer-editor pre { font-family: var(--font-mono); font-size: 12.5px; background: var(--bg-muted); padding: 8px 10px; border-radius: 6px; margin: 4px 0; white-space: pre-wrap; }
+.composer-editor pre code { background: transparent; padding: 0; }
+.composer-editor blockquote { margin: 2px 0; padding: 2px 0 2px 10px; border-left: 3px solid color-mix(in srgb, var(--accent) 55%, transparent); color: var(--fg-muted); }
+.composer-editor ul { margin: 2px 0; padding-left: 20px; list-style: disc; }
+.composer-editor .mention { background: var(--mention); border-radius: 3px; padding: 0 2px; font-weight: 600; }
+.composer-editor .emoji { font-size: 1.15em; line-height: 1; vertical-align: -0.1em; }
+.composer-editor .ProseMirror-selectednode { outline: 2px solid var(--accent); border-radius: 3px; }
+
+/* Scroll areas that must not reserve a scrollbar gutter (collapsed sidebar rail). */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
