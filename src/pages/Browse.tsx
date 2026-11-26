@@ -9,6 +9,7 @@ import { useUi } from "../store/ui";
 import { formatDay } from "../lib/format";
 import { ghostBtn, primaryBtn, fieldClass, dangerBtn } from "../components/Dialog";
 import { CreateChannelDialog } from "../components/dialogs/CreateChannelDialog";
+import { confirmAsk } from "../lib/confirm";
 
 const ARCHIVE_LABEL: Record<ArchiveType, string> = { private: "비공개", public: "공개", anonymous: "대화", chatbot: "봇" };
 type Tab = "available" | "joined" | "inactive";
@@ -50,12 +51,12 @@ export function Browse() {
 
   const join = async (c: Channel) => { setBusy(c.channel_id); setError(null); try { await joinChannel(c); setView("channel"); } catch (e) { setError(`참여 실패: ${(e as { message?: string })?.message ?? e}`); } finally { setBusy(null); } };
   const leave = async (c: Channel) => {
-    if (!confirm(`"${c.name}" 채널에서 나갈까요? 공개 채널은 나중에 다시 참여할 수 있습니다.`)) return;
+    if (!await confirmAsk(`"${c.name}" 채널에서 나갈까요? 공개 채널은 나중에 다시 참여할 수 있습니다.`)) return;
     setBusy(c.channel_id); setError(null);
     try { await leaveChannel(c.channel_id); reload(); } catch (e) { setError(`나가기 실패: ${(e as { message?: string })?.message ?? e}`); } finally { setBusy(null); }
   };
   const archive = async (c: Channel) => {
-    if (!confirm(`"${c.name}" 채널을 보관할까요? 보관된 채널은 모든 멤버에게서 사라지며 관리자 콘솔에서만 복구할 수 있습니다.`)) return;
+    if (!await confirmAsk(`"${c.name}" 채널을 보관할까요? 보관된 채널은 모든 멤버에게서 사라지며 관리자 콘솔에서만 복구할 수 있습니다.`)) return;
     setBusy(c.channel_id); setError(null);
     try { await chat.archiveChannel(c.channel_id); useChat.getState().onChannelRemove(c.channel_id); } catch (e) { setError(`보관 실패: ${(e as { message?: string })?.message ?? e} (채널 생성자 또는 관리자만 보관할 수 있습니다)`); } finally { setBusy(null); }
   };

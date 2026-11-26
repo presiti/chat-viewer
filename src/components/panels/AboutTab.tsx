@@ -9,6 +9,7 @@ import { useUi } from "../../store/ui";
 import { formatDay } from "../../lib/format";
 import { dangerBtn, fieldClass } from "../Dialog";
 import { IconButton } from "../IconButton";
+import { confirmAsk } from "../../lib/confirm";
 
 type Level = ChannelPreference["notification_desktop"];
 const LEVELS: { key: Level; label: string }[] = [
@@ -58,7 +59,7 @@ export function AboutTab({ ch }: { ch: Channel }) {
     try { await chat.setPreference(ch.channel_id, { notification_mute: mute }); } catch (e) { setPref((p) => ({ ...p, notification_mute: !mute })); updateChannel(ch.channel_id, { preferences: { ...ch.preferences, notification_mute: !mute } }); setError(`저장 실패: ${(e as { message?: string })?.message ?? e}`); }
   };
   const leave = async () => {
-    if (!confirm(ch.type === "anonymous" ? "이 대화를 닫을까요?" : `"${ch.name}" 채널에서 나갈까요?`)) return;
+    if (!await confirmAsk(ch.type === "anonymous" ? "이 대화를 닫을까요?" : `"${ch.name}" 채널에서 나갈까요?`)) return;
     try { await leaveChannel(ch.channel_id); setRightPanel("none"); } catch (e) { setError(`나가기 실패: ${(e as { message?: string })?.message ?? e}`); }
   };
   const editor = (field: "name" | "purpose") => (

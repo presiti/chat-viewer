@@ -17,6 +17,7 @@ import { IconButton } from "./IconButton";
 import { EmojiPicker } from "./EmojiPicker";
 import { Popover } from "./Popover";
 import { MessageSkeleton } from "./MessageSkeleton";
+import { confirmAsk } from "../lib/confirm";
 
 function Reply({ post, isMine }: { post: Post; isMine: boolean }) {
   const user = useChat((s) => s.users[post.creator_id]);
@@ -26,7 +27,7 @@ function Reply({ post, isMine }: { post: Post; isMine: boolean }) {
   const retryReply = useChat((s) => s.retryReply);
   const discardReply = useChat((s) => s.discardReply);
   const onClick = (e: React.MouseEvent) => { const a = (e.target as HTMLElement).closest("a"); if (a?.href) { e.preventDefault(); openExternal(a.href); } };
-  const remove = async () => { if (!confirm("이 댓글을 삭제할까요?")) return; try { await chat.deletePost(post.post_id); onPostDelete(post.channel_id, post.post_id, post.thread_id); } catch (e) { alert(`삭제 실패: ${(e as { message?: string })?.message ?? e}`); } };
+  const remove = async () => { if (!await confirmAsk("이 댓글을 삭제할까요?")) return; try { await chat.deletePost(post.post_id); onPostDelete(post.channel_id, post.post_id, post.thread_id); } catch (e) { alert(`삭제 실패: ${(e as { message?: string })?.message ?? e}`); } };
   return (
     <div className={clsx("group/reply flex gap-3 py-1", post._pending && "opacity-60", post._failed && "bg-red-500/10")} onClick={onClick}>
       <Avatar userId={post.creator_id} size={24} />

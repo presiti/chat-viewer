@@ -9,6 +9,7 @@ import { emptyState } from "./PanelShell";
 import { PostListItem } from "./PostListItem";
 import { ReminderRow, ScheduledCard } from "./CollectionRows";
 import { ScheduleDialog } from "../ScheduleDialog";
+import { confirmAsk } from "../../lib/confirm";
 
 export type MineTabKey = "bookmarks" | "threads" | "reminders" | "scheduled";
 
@@ -71,7 +72,7 @@ function ScheduledList({ channelId }: { channelId: number }) {
   const [editing, setEditing] = useState<ScheduledPost | "new" | null>(null);
   const load = () => chat.listScheduled(channelId).then((l) => setItems(l.map((p) => ({ ...p, channel_id: p.channel_id || channelId })).sort((a, b) => a.send_at - b.send_at))).catch(() => setItems([])).finally(() => setLoading(false));
   useEffect(() => { setLoading(true); void load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [channelId]);
-  const remove = async (p: ScheduledPost) => { if (!confirm("예약을 삭제할까요?")) return; await chat.deleteScheduled(p.cronjob_id).catch(() => null); void load(); };
+  const remove = async (p: ScheduledPost) => { if (!await confirmAsk("예약을 삭제할까요?")) return; await chat.deleteScheduled(p.cronjob_id).catch(() => null); void load(); };
   return (
     <div className="p-3 space-y-2">
       <button className={`${ghostBtn} w-full inline-flex items-center justify-center gap-1.5 !py-1`} onClick={() => setEditing("new")}><Plus className="w-3.5 h-3.5" /> 이 채널에 예약 메시지 추가</button>

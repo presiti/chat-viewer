@@ -26,6 +26,7 @@ import { Popover } from "./Popover";
 import { ForwardDialog } from "./dialogs/ForwardDialog";
 import { useUi } from "../store/ui";
 import { ReadBadge } from "./ReadBadge";
+import { confirmAsk } from "../lib/confirm";
 
 function ImageAttachment({ post }: { post: Post }) {
   const [src, setSrc] = useState<string | null>(null);
@@ -217,7 +218,7 @@ export const MessageItem = memo(function MessageItem({ post, continued, isMine, 
     try { await chat.starPost(post.post_id, next); } catch (e) { onPostUpdate(post); alert(`북마크 실패: ${(e as { message?: string })?.message ?? e}`); }
   };
   const remove = async () => {
-    if (!confirm("이 메시지를 삭제할까요?")) return;
+    if (!await confirmAsk("이 메시지를 삭제할까요?")) return;
     try { await chat.deletePost(post.post_id); onPostDelete(post.channel_id, post.post_id); } catch (e) { alert(`삭제 실패: ${(e as { message?: string })?.message ?? e}`); }
   };
 
