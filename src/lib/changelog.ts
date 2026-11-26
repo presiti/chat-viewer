@@ -8,6 +8,10 @@ export const RELEASES_URL = "https://github.com/presiti/chat-viewer-releases/rel
  * each release's notes). With every release add the entry here *and* in CHANGELOG.md, then drop the oldest here.
  */
 export const CHANGELOG: { version: string; date: string; items: string[] }[] = [
+  { version: "0.2.2", date: "2026-11-26", items: [
+    "숫자·true·false·null·따옴표로 시작하는 메시지가 잘리던 문제 수정 (예: 172.10.22.179가 172.1로, 2026-11-25 회의가 2026으로 저장되던 현상)",
+    "한글 입력 직후 Enter로 보낼 때 전송이 빠지거나 마지막 글자가 남던 경우를 더 단단하게 처리",
+  ] },
   { version: "0.2.1", date: "2026-11-25", items: [
     "사진 여러 장 갤러리: 같은 사람이 연달아 보낸 사진을 격자로 묶어 보여 줍니다 (최대 9칸, 넘치면 +N)",
     "이미지 뷰어에서 ←/→로 채널의 이전·다음 이미지 탐색, 이미지를 새 창으로 열기",
@@ -34,10 +38,5 @@ export const CHANGELOG: { version: string; date: string; items: string[] }[] = [
     "검색창은 파일명 필터만, 로그인 요청 대기 표시",
     "정보·프로필 창이 채팅 뒤로 숨던 문제 수정, 강조 색 색상환 버튼 정리, Windows 업데이트 때 로그인·검색 색인이 지워지지 않게 수정",
     "설정 정리: 알림 탭에 부재 중 · 알림 일시 중지를 모아 두고 버전 표시를 정보 창으로 옮김",
-  ] },
-  { version: "0.1.4", date: "2026-11-05", items: [
-    "채팅을 새 창(앱 전체)으로 한 번 더 띄우기: 채널 헤더의 새 창 버튼 · 목록에 창 아이콘 표시",
-    "작은 창 모드의 제목·돌아가기 버튼 크기 정리",
-    "업데이트 후 처음 켜면 바뀐 점을 작은 창으로 알려줍니다",
   ] },
 ];
