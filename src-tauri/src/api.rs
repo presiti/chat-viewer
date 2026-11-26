@@ -27,21 +27,36 @@ pub fn form_value(v: &Value) -> String {
 
 /// Form value for a Chat API call. DSM reads every parameter as JSON first and falls back to the raw text only when that
 /// fails, and its parser takes a valid *prefix*: the raw text `172.10.22.179` becomes the number 172.10 (stored as
-/// "172.1"), `2026-11-25 회의` becomes 2026, `true story` becomes true. Text that begins like a JSON number, boolean,
-/// null or string is therefore sent JSON-quoted, which is how the official client sends every string. Arrays/objects
-/// that the callers already serialized (they start with `[` or `{`) and everything else stay as they are.
+/// "172.1"), `2026-11-25 회의` becomes 2026, `true story` becomes true, `[1] 안건` becomes the array [1]. Guessing which
+/// texts are safe keeps missing cases, so every string is sent JSON-quoted, which is how the official client sends them.
+/// Numbers, booleans, null, arrays and objects are JSON-encoded as before.
 pub fn api_value(v: &Value) -> String {
-    if let Value::String(s) = v {
-        let t = s.trim_start();
-        let starts_like_json = t.starts_with('"')
-            || t.starts_with(|c: char| c.is_ascii_digit())
-            || (t.starts_with('-') && t[1..].starts_with(|c: char| c.is_ascii_digit() || c == '.'))
-            || ["true", "false", "null"].iter().any(|w| t.starts_with(w));
-        if starts_like_json {
-            return serde_json::to_string(s).unwrap_or_else(|_| s.clone());
+    match v {
+        Value::String(s) => serde_json::to_string(s).unwrap_or_else(|_| s.clone()),
+        other => form_value(other),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn strings_are_always_json_quoted() {
+        for s in ["172.10.22.179", "2026-11-25 회의", "true story", "null 체크", "\"인용\"", "-1.5도", "[1] 안건", "{a} 설명", "안녕하세요", ""] {
+            assert_eq!(api_value(&json!(s)), serde_json::to_string(s).unwrap(), "{s}");
         }
     }
-    form_value(v)
+
+    #[test]
+    fn non_strings_keep_their_json_form() {
+        assert_eq!(api_value(&json!(42)), "42");
+        assert_eq!(api_value(&json!(true)), "true");
+        assert_eq!(api_value(&Value::Null), "null");
+        assert_eq!(api_value(&json!([1, 2])), "[1,2]");
+        assert_eq!(api_value(&json!({"a": "b"})), r#"{"a":"b"}"#);
+    }
 }
 
 /// Authenticated URL for resources the webview loads directly (avatars, thumbnails).
