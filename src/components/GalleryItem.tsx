@@ -11,6 +11,7 @@ import { Avatar } from "./Avatar";
 import { openUserCard } from "./UserCard";
 import { downloadPost } from "./ImageViewer";
 import { ReadBadge } from "./ReadBadge";
+import { confirmAsk } from "../lib/confirm";
 
 /** Tiles shown before the rest collapses into a "+N" tile. */
 const MAX_TILES = 9;
@@ -54,7 +55,7 @@ export const GalleryItem = memo(function GalleryItem({ posts, continued, isMine,
 
   const open = (p: Post) => useImageViewer.getState().open(p.channel_id, p.post_id);
   const remove = async (p: Post) => {
-    if (!confirm("이 사진을 삭제할까요?")) return;
+    if (!await confirmAsk("이 사진을 삭제할까요?")) return;
     try { await chat.deletePost(p.post_id); onPostDelete(p.channel_id, p.post_id); } catch (e) { alert(`삭제 실패: ${(e as { message?: string })?.message ?? e}`); }
   };
 

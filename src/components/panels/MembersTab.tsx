@@ -9,6 +9,7 @@ import { Avatar } from "../Avatar";
 import { IconButton } from "../IconButton";
 import { Dialog, fieldClass, ghostBtn, primaryBtn } from "../Dialog";
 import { openUserCard } from "../UserCard";
+import { confirmAsk } from "../../lib/confirm";
 
 /** Member list tab of the channel info panel. */
 export function MembersTab({ channelId }: { channelId: number }) {
@@ -37,7 +38,7 @@ export function MembersTab({ channelId }: { channelId: number }) {
   if (!ch) return null;
   const named = ch.type === "public" || ch.type === "private";
   const kick = async (uid: number) => {
-    if (!confirm(`${userLabel(users[uid])} 님을 채널에서 내보낼까요?`)) return;
+    if (!await confirmAsk(`${userLabel(users[uid])} 님을 채널에서 내보낼까요?`)) return;
     setBusy(uid);
     try { await chat.kickUser(channelId, uid); const next = ids.filter((i) => i !== uid); setIds(next); updateChannel(channelId, { member_ids: next, members: ch.members ? next : ch.members, total_member_count: next.length }); } finally { setBusy(null); }
   };

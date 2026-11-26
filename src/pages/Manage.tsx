@@ -17,6 +17,7 @@ import { ChannelIcon } from "../components/ChannelIcon";
 import { NOTIFY_SOUNDS, testNotification } from "../store/notify";
 import { openNotificationSettings } from "../lib/external";
 import { StatusSettings } from "../components/StatusSettings";
+import { confirmAsk } from "../lib/confirm";
 
 const TABS: { key: ManageTab; label: string; icon: React.ReactNode }[] = [
   { key: "sections", label: "정렬 · 고정 · 숨기기", icon: <ListOrdered className="w-4 h-4" /> },
@@ -449,7 +450,7 @@ export function Manage() {
                   <IconButton size="sm" label="위로" disabled={i === 0} onClick={(e) => { e.stopPropagation(); move(g.id, -1); }}><ArrowUp /></IconButton>
                   <IconButton size="sm" label="아래로" disabled={i === prefs.groups.length - 1} onClick={(e) => { e.stopPropagation(); move(g.id, 1); }}><ArrowDown /></IconButton>
                   <IconButton size="sm" label="이름 변경" onClick={(e) => { e.stopPropagation(); setRenaming(g.id); setRenameText(g.name); }}><Pencil /></IconButton>
-                  <IconButton size="sm" label="삭제 (채널은 원래 섹션으로)" onClick={(e) => { e.stopPropagation(); if (confirm(`"${g.name}" 그룹을 삭제할까요? 채널은 원래 섹션으로 돌아갑니다.`)) { removeGroup(g.id); if (groupSel === g.id) setGroupSel(null); } }}><Trash2 /></IconButton>
+                  <IconButton size="sm" label="삭제 (채널은 원래 섹션으로)" onClick={async (e) => { e.stopPropagation(); if (await confirmAsk(`"${g.name}" 그룹을 삭제할까요? 채널은 원래 섹션으로 돌아갑니다.`)) { removeGroup(g.id); if (groupSel === g.id) setGroupSel(null); } }}><Trash2 /></IconButton>
                 </span>
               </li>
             ))}

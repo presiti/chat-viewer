@@ -7,6 +7,7 @@ import type { Post, VoteChoice } from "../api/types";
 import { useChat, userLabel } from "../store/chat";
 import { useSession } from "../store/session";
 import { fieldClass } from "./Dialog";
+import { confirmAsk } from "../lib/confirm";
 
 export function VoteCard({ post }: { post: Post }) {
   const me = useSession((s) => s.info?.user_id);
@@ -43,7 +44,7 @@ export function VoteCard({ post }: { post: Post }) {
     } catch (e) { alert(`투표 실패: ${(e as { message?: string })?.message ?? e}`); } finally { setBusy(false); }
   };
 
-  const close = async () => { if (!confirm("투표를 마감할까요?")) return; await chat.closeVote(post.post_id); onPostUpdate({ ...post, props: { ...post.props, vote: { ...vote, state: "closed" } } }); };
+  const close = async () => { if (!await confirmAsk("투표를 마감할까요?")) return; await chat.closeVote(post.post_id); onPostUpdate({ ...post, props: { ...post.props, vote: { ...vote, state: "closed" } } }); };
   const addOption = async () => { const t = newOpt.trim(); if (!t) return; await chat.addVoteOption(post.post_id, t); setNewOpt(""); setAdding(false); await refresh(); };
 
   return (

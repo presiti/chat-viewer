@@ -10,6 +10,7 @@ import { IconButton } from "../components/IconButton";
 import { ReminderRow, ScheduledCard } from "../components/panels/CollectionRows";
 import { ScheduleDialog } from "../components/ScheduleDialog";
 import { ghostBtn } from "../components/Dialog";
+import { confirmAsk } from "../lib/confirm";
 
 type Tab = "bookmarks" | "threads" | "reminders" | "scheduled";
 const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
@@ -100,7 +101,7 @@ function Scheduled() {
   const [editing, setEditing] = useState<ScheduledPost | null>(null);
   const load = () => chat.listScheduledMany(ids).then(setItems).finally(() => setLoading(false));
   useEffect(() => { setLoading(true); void load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [ids]);
-  const remove = async (p: ScheduledPost) => { if (!confirm("예약을 삭제할까요?")) return; await chat.deleteScheduled(p.cronjob_id); void load(); };
+  const remove = async (p: ScheduledPost) => { if (!await confirmAsk("예약을 삭제할까요?")) return; await chat.deleteScheduled(p.cronjob_id); void load(); };
   return (
     <div className="w-full p-3 space-y-2">
       {loading && emptyState("불러오는 중…")}

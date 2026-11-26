@@ -26,6 +26,7 @@ import { isMobileOS, openChatWindow, useCompact } from "../lib/platform";
 import { usePopouts } from "../store/popout";
 import { buildSections, isLocalHidden, isServerHidden, sectionDefs, unreadAlertEntries, type ChannelGroup, type Entry, type SectionKey, type SectionSort } from "../lib/sidebarOrder";
 import { Archive, BellRing, CircleHelp, ExternalLink, EyeOff as EyeOffIcon, Folder, FolderOpen, FolderPlus, Folders, Globe, Inbox, Info, MessageCircle, Moon, Pencil, Plus, Puzzle, Settings, Trash2, UserRound, X } from "lucide-react";
+import { confirmAsk } from "../lib/confirm";
 
 const SORT_LABELS: Record<SectionSort, string> = { recent: "최근 활동순", name: "이름순", manual: "직접 정렬" };
 
@@ -211,7 +212,7 @@ function Section({ title, sectionKey, collapsed, items, row, onManage, accent, g
                   </div>
                   <button type="button" className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-[var(--hover)]" onClick={startRename}><Pencil className="w-3.5 h-3.5" /> 이름 변경</button>
                   <button type="button" className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-[var(--hover)]" onClick={() => { setMenu(false); onManage(sectionKey); }}><Folders className="w-3.5 h-3.5" /> 채널 넣기·빼기…</button>
-                  <button type="button" className="w-full flex items-center gap-2 px-3 py-1.5 text-red-500 hover:bg-red-500/10" onClick={() => { setMenu(false); if (confirm(`"${group.name}" 그룹을 삭제할까요? 채널은 원래 섹션으로 돌아갑니다.`)) removeGroup(group.id); }}><Trash2 className="w-3.5 h-3.5" /> 그룹 삭제</button>
+                  <button type="button" className="w-full flex items-center gap-2 px-3 py-1.5 text-red-500 hover:bg-red-500/10" onClick={async () => { setMenu(false); if (await confirmAsk(`"${group.name}" 그룹을 삭제할까요? 채널은 원래 섹션으로 돌아갑니다.`)) removeGroup(group.id); }}><Trash2 className="w-3.5 h-3.5" /> 그룹 삭제</button>
                 </>
               )}
               <div className="my-1 h-px bg-[var(--border)]" />
